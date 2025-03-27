@@ -1,6 +1,7 @@
 package tasks.adts
 import u03.extensionmethods.Optionals.*
 import u03.extensionmethods.Sequences.*
+import u03.extensionmethods.Sequences.Sequence.*
 
 /*  Exercise 2: 
  *  Implement the below trait, and write a meaningful test.
@@ -111,21 +112,21 @@ object SchoolModel:
        */
       def hasCourse(name: String): Boolean
   object BasicSchoolModule extends SchoolModule:
-    override type School = Nothing
-    override type Teacher = Nothing
-    override type Course = Nothing
+    override type School = Sequence[(Teacher, Course)] //cons( (teacher, course), cons((teacher, course), NIl()))
+    override type Teacher = String
+    override type Course = String
 
-    def teacher(name: String): Teacher = ???
-    def course(name: String): Course = ???
-    def emptySchool: School = ???
+    def teacher(name: String): Teacher = name
+    def course(name: String): Course = name
+    def emptySchool: School = Nil()
 
     extension (school: School)
-      def courses: Sequence[String] = ???
-      def teachers: Sequence[String] = ???
-      def setTeacherToCourse(teacher: Teacher, course: Course): School = ???
-      def coursesOfATeacher(teacher: Teacher): Sequence[Course] = ???
-      def hasTeacher(name: String): Boolean = ???
-      def hasCourse(name: String): Boolean = ???
+      def courses: Sequence[String] = school.map((t, c) => c).distinctTail()
+      def teachers: Sequence[String] = school.map((t, c) => t).distinctTail()
+      def setTeacherToCourse(teacher: Teacher, course: Course): School = school.concat(cons((teacher, course), Nil()))
+      def coursesOfATeacher(teacher: Teacher): Sequence[Course] = school.filter((t, c) => t == teacher).map((x, y) => y)
+      def hasTeacher(name: String): Boolean = school.filter((t, c) => t == name) != Nil()
+      def hasCourse(name: String): Boolean = school.filter((t, c) => c == name) != Nil()
 @main def examples(): Unit =
   import SchoolModel.BasicSchoolModule.*
   val school = emptySchool
