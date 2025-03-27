@@ -23,7 +23,7 @@ object Ex6TryModel:
 
   def success[A](value: A): Try[A] = TryImpl.Success(value)
   def failure[A](exception: Throwable): Try[A] = TryImpl.Failure(exception)
-  def exec[A](expression: => A): Try[A] = try success(expression) catch failure(_)
+  def exec[A](expression: => A): Try[A] = try success(expression) catch case e: Throwable => failure(e)
 
   extension [A](m: Try[A]) 
     def getOrElse[B >: A](other: B): B = m match
@@ -31,12 +31,13 @@ object Ex6TryModel:
       case TryImpl.Failure(_) => other
 
   given Monad[Try] with
-    override def unit[A](value: A): Try[A] = ???
-    extension [A](m: Try[A]) 
+    override def unit[A](value: A): Try[A] = TryImpl.Success(value)
+    extension [A](m: Try[A])
+      override def flatMap[B](f: A => Try[B]): Try[B] = m match
+        case TryImpl.Success(v) => f(v)
+        case TryImpl.Failure(e) => failure(e)
 
-      override def flatMap[B](f: A => Try[B]): Try[B] = ??? 
-      
-@main def main: Unit = 
+@main def main(): Unit =
   import Ex6TryModel.*
 
   val result = for 
@@ -44,6 +45,7 @@ object Ex6TryModel:
     b <- success(30)
   yield a + b
 
+  println(result)
   assert(result.getOrElse(-1) == 40)
 
   val result2 = for 
@@ -52,6 +54,8 @@ object Ex6TryModel:
     c <- success(30)
   yield a + c
 
+  println(success(20).map(_ + 10).getOrElse(-1))
+  println(result2)
   assert(success(20).map(_ + 10).getOrElse(-1) == 30)
   assert(result2.getOrElse(-1) == -1)
 
@@ -60,3 +64,5 @@ object Ex6TryModel:
     b <- exec(throw new RuntimeException("error"))
     c <- exec(30)
   yield a + c
+
+  println(result3)
