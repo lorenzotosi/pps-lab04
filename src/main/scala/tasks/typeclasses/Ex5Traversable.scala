@@ -28,8 +28,13 @@ object Ex5Traversable:
     case Cons(h, t) => log(h); logAll(t)
     case _ => ()
 
-  def logAll[T[_], A](t: T[A], v: A => Unit = log)(using traversable: Traversable[T]): Unit =
-    traversable.traverse(t)(v)
+  //con print custom
+  def logAll[T[_], A](t: T[A], printable: A => Unit)(using traversable: Traversable[T]): Unit =
+    traversable.traverse(t)(printable)
+
+  //con print che usa la log
+  def logAll[T[_], A](t: T[A])(using traversable: Traversable[T]): Unit =
+    traversable.traverse(t)(log)
 
   trait Traversable[T[_]]:
     def traverse[A](t: T[A])(f: A => Unit): Unit
