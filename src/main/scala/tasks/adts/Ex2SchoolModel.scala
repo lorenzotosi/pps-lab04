@@ -121,12 +121,12 @@ object SchoolModel:
     def emptySchool: School = Nil()
 
     extension (school: School)
-      def courses: Sequence[String] = school.map((t, c) => c).distinctTail()
-      def teachers: Sequence[String] = school.map((t, c) => t).distinctTail()
+      def courses: Sequence[String] = school.map((_, c) => c).distinctTail()
+      def teachers: Sequence[String] = school.map((t, _) => t).distinctTail()
       def setTeacherToCourse(teacher: Teacher, course: Course): School = school.concat(cons((teacher, course), Nil()))
-      def coursesOfATeacher(teacher: Teacher): Sequence[Course] = school.filter((t, c) => t == teacher).map((x, y) => y)
-      def hasTeacher(name: String): Boolean = school.filter((t, c) => t == name) != Nil()
-      def hasCourse(name: String): Boolean = school.filter((t, c) => c == name) != Nil()
+      def coursesOfATeacher(teacher: Teacher): Sequence[Course] = school.filter((t, _) => t == teacher).map((_, y) => y)
+      def hasTeacher(name: String): Boolean = school.filter((t, _) => t == name) != Nil()
+      def hasCourse(name: String): Boolean = school.filter((_, c) => c == name) != Nil()
 @main def examples(): Unit =
   import SchoolModel.BasicSchoolModule.*
   val school = emptySchool
